@@ -1,32 +1,49 @@
-# Dockerfile for Nginx + HHVM
-FROM ubuntu:14.04.1
-MAINTAINER josh@jgirvin.com
+# OFFICIAL REPOSITORY
+FROM php:7.1-fpm
 
-# Install nginx and deps for HHVM
-RUN apt-get update && apt-get install -y apache2 wget php5 php5-cli php5-readline php5-mysql php5-sqlite php5-imagick php5-xdebug php5-curl php5-mcrypt
+ENV DEBIAN_FRONTEND noninteractive
+
+# INSTALL PACKAGES
+RUN apt-get update -qq && apt-get install -y \
+    locales -qq \
+    && locale-gen en_AU \
+    && locale-gen en_AU.UTF-8 \
+    && dpkg-reconfigure locales \
+    && locale-gen C.UTF-8 \
+    && dpkg-reconfigure locales \
+    && apt-get update && apt-get install -y \
+      software-properties-common \
+      python-software-properties \
+      build-essential \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4F4EA0AAE5267A6C \
+    && apt-get update && apt-get install -y  \
+      supervisor \
+      nginx \
+      wget \
+      curl \
+      zip \
+      unzip \
+      apache2
+
+ENV LANG C.UTF-8
+ENV LANGUAGE C.UTF-8
+ENV LC_ALL C.UTF-8
 
 # Install Composer
-RUN wget -O /tmp/composer.phar https://getcomposer.org/composer.phar && cp /tmp/composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer
+RUN wget -O /tmp/composer.phar https://getcomposer.org/composer.phar \
+    && cp /tmp/composer.phar /usr/local/bin/composer \
+    && chmod +x /usr/local/bin/composer \
+    && rm /etc/apache2/sites-enabled/000-default.conf
 
 # Apache config
-ADD apache2.conf /etc/apache2/apache2.conf
-RUN rm /etc/apache2/sites-enabled/000-default.conf
-ADD site-config.conf /etc/apache2/sites-enabled/000-default.conf
-RUN a2enmod php5
-RUN a2enmod rewrite
-
-# Set up Supervisord
-RUN apt-get install supervisor -y
+COPY apache2.conf /etc/apache2/apache2.conf
+COPY site-config.conf /etc/apache2/sites-enabled/000-default.conf
 
 # Expose port 80 for apache
 EXPOSE 80
 
 # Testing
-ADD ./start.sh /start.sh
-ADD supervisord.conf /etc/supervisord.conf
-
-RUN sed -i 's/; max_input_vars = 1000/max_input_vars = 5000/g' /etc/php5/apache2/php.ini
-
-RUN service apache2 stop && service supervisor stop
+COPY ./start.sh /start.sh
+COPY supervisord.conf /etc/supervisord.conf
 
 ENTRYPOINT ["/start.sh"]
