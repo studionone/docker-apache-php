@@ -18,7 +18,6 @@ RUN apt-get update -qq && apt-get install -y \
     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4F4EA0AAE5267A6C \
     && apt-get update && apt-get install -y  \
       supervisor \
-      nginx \
       wget \
       curl \
       zip \
