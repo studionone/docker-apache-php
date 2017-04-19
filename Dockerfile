@@ -3,7 +3,7 @@ FROM php:7.1-fpm
 
 ENV DEBIAN_FRONTEND noninteractive
 
-# INSTALL PACKAGES
+# Install packages
 RUN apt-get update -qq && apt-get install -y \
     locales -qq \
     && locale-gen en_AU \
@@ -38,11 +38,9 @@ RUN wget -O /tmp/composer.phar https://getcomposer.org/composer.phar \
 COPY apache2.conf /etc/apache2/apache2.conf
 COPY site-config.conf /etc/apache2/sites-enabled/000-default.conf
 
-# Expose port 80 for apache
-EXPOSE 80
+# Supervisor config
+COPY supervisor_conf.d/apache2.conf /etc/supervisor/conf.d/apache2.conf
 
-# Testing
+# Install and update entrypoint script
 COPY ./start.sh /start.sh
-COPY supervisord.conf /etc/supervisord.conf
-
 ENTRYPOINT ["/start.sh"]
