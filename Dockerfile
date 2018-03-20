@@ -1,4 +1,3 @@
-# OFFICIAL REPOSITORY
 FROM php:7.1-fpm
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -31,16 +30,15 @@ ENV LC_ALL C.UTF-8
 # Install Composer
 RUN wget -O /tmp/composer.phar https://getcomposer.org/composer.phar \
     && cp /tmp/composer.phar /usr/local/bin/composer \
-    && chmod +x /usr/local/bin/composer \
-    && rm /etc/apache2/sites-enabled/000-default.conf
+    && chmod +x /usr/local/bin/composer
 
 # Apache config
 COPY apache2.conf /etc/apache2/apache2.conf
-COPY site-config.conf /etc/apache2/sites-enabled/000-default.conf
+COPY site-config.conf /etc/apache2/sites-available/000-default.conf
 
 # Supervisor config
 COPY supervisor_conf.d/apache2.conf /etc/supervisor/conf.d/apache2.conf
 
 # Install and update entrypoint script
-COPY ./start.sh /start.sh
+COPY start.sh /
 ENTRYPOINT ["/start.sh"]
