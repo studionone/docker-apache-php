@@ -1,4 +1,4 @@
-FROM php:7.1-fpm
+FROM php:7.3-fpm
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -11,8 +11,8 @@ RUN apt-get update -qq && apt-get install -y \
     && locale-gen C.UTF-8 \
     && dpkg-reconfigure locales \
     && apt-get update && apt-get install -y \
+      gnupg \
       software-properties-common \
-      python-software-properties \
       build-essential \
     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4F4EA0AAE5267A6C \
     && apt-get update && apt-get install -y  \
